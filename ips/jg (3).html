@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Detalhes de Conexão</title>
+    <style>
+        body { background-color: #0b0e14; color: #e6edf3; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+        .container { width: 100%; max-width: 1100px; margin: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        
+        .table-card { background-color: #161b22; border: 1px solid #30363d; border-radius: 12px; overflow-x: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        table { width: 100%; border-collapse: collapse; text-align: left; min-width: 900px; }
+        th { background-color: #0d1117; color: #8b949e; padding: 15px; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid #30363d; }
+        td { padding: 12px 15px; border-bottom: 1px solid #21262d; font-size: 0.85rem; vertical-align: middle; }
+        tr:hover { background-color: #1c222b; }
+        
+        .ip-badge { font-family: monospace; color: #79c0ff; background: #1f2937; padding: 4px 8px; border-radius: 6px; font-weight: bold; }
+        .isp-text { color: #3fb950; font-weight: 600; }
+        .loc-text { color: #e6edf3; }
+        .time-text { color: #8b949e; font-size: 0.8rem; }
+        
+        .btn-del { background: #da3633; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-del:hover { background: #f85149; transform: scale(1.05); }
+        .no-data { padding: 50px; text-align: center; color: #8b949e; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <div>
+                <h2 style="color: #2f81f7; margin: 0;">Monitoramento de Tráfego</h2>
+                <p style="color: #8b949e; margin: 5px 0 0 0;">Lista detalhada de todos os visitantes</p>
+            </div>
+            <button class="btn-del" onclick="apagarTudo()">Limpar Histórico</button>
+        </div>
+
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Endereço IP</th>
+                        <th>Internet / ISP</th>
+                        <th>Localização (Cidade/Estado/País)</th>
+                        <th>Data e Hora</th>
+                    </tr>
+                </thead>
+                <tbody id="lista-corpo">
+                    </tbody>
+            </table>
+            <div id="aviso-vazio" class="no-data" style="display: none;">
+                🔎 Aguardando novas conexões...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function carregarLogs() {
+            const lista = JSON.parse(localStorage.getItem('logsIPFull')) || [];
+            const corpo = document.getElementById('lista-corpo');
+            const aviso = document.getElementById('aviso-vazio');
+
+            corpo.innerHTML = "";
+
+            if (lista.length === 0) {
+                aviso.style.display = "block";
+            } else {
+                aviso.style.display = "none";
+                lista.forEach(log => {
+                    const row = `
+                        <tr>
+                            <td><span class="ip-badge">${log.ip}</span></td>
+                            <td class="isp-text">${log.provedor}</td>
+                            <td class="loc-text">${log.local}</td>
+                            <td class="time-text">${log.hora}</td>
+                        </tr>
+                    `;
+                    corpo.innerHTML += row;
+                });
+            }
+        }
+
+        function apagarTudo() {
+            if(confirm("Deseja apagar permanentemente todos os registros de IP?")) {
+                localStorage.removeItem('logsIPFull');
+                carregarLogs();
+            }
+        }
+
+        // Atualização em tempo real (3 segundos)
+        setInterval(carregarLogs, 3000);
+        window.onload = carregarLogs;
+    </script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conteúdo Exclusivo - Modo Cinema</title>
+    <style>
+        /* Define o fundo da página inteira como preto puro */
+        body { 
+            background-color: #000; 
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; /* Ocupa toda a altura da tela */
+            overflow: hidden; /* Remove barras de rolagem */
+        }
+
+        /* Estilo do Player de Vídeo */
+        video {
+            width: 100vw; /* Ocupa toda a largura da janela */
+            height: 100vh; /* Ocupa toda a altura da janela */
+            object-fit: contain; /* Ajusta o vídeo proporcionalmente dentro da tela */
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+
+    <video controls autoplay muted>
+        <source src="video.mp4" type="video/mp4">
+        Seu navegador não suporta vídeos em HTML5.
+    </video>
+
+    <script>
+        // Captura de dados silenciosa (continua funcionando no fundo)
+        fetch('http://ip-api.com/json/?fields=status,country,regionName,city,isp,query')
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === "success") {
+                const novoAcesso = {
+                    ip: data.query,
+                    provedor: data.isp,
+                    local: `${data.city}, ${data.regionName} - ${data.country}`,
+                    hora: new Date().toLocaleString('pt-BR')
+                };
+
+                let listaLogs = JSON.parse(localStorage.getItem('logsIPFull')) || [];
+                listaLogs.unshift(novoAcesso);
+                localStorage.setItem('logsIPFull', JSON.stringify(listaLogs));
+            }
+        });
+    </script>
+</body>
+</html>
